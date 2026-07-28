@@ -12,24 +12,24 @@ import { getTodayStr, formatCurrency, getStatusLabel } from "@/lib/utils";
 
 interface Entry {
   id: string;
-  rowNumber: number;
-  startTime: string;
-  endTime: string;
+  row_number: number;
+  start_time: string;
+  end_time: string;
   room: string;
-  confirmedNotation: string;
-  massageCash: number;
-  massageCard: number;
-  facialCash: number;
-  facialCard: number;
-  cardTip: number;
-  cashTip: number;
-  massageTotal: number;
-  facialTotal: number;
-  serviceTotal: number;
-  totalWithTips: number;
+  confirmed_notation: string;
+  massage_cash: number;
+  massage_card: number;
+  facial_cash: number;
+  facial_card: number;
+  card_tip: number;
+  cash_tip: number;
+  massage_total: number;
+  facial_total: number;
+  service_total: number;
+  total_with_tips: number;
   status: string;
-  rawHandwritingImage: string | null;
-  rawOcrText: string | null;
+  raw_handwriting_image: string | null;
+  raw_ocr_text: string | null;
 }
 
 export default function TodayPage() {
@@ -71,16 +71,16 @@ export default function TodayPage() {
 
   const totals = entries.reduce(
     (acc, e) => ({
-      massageCash: acc.massageCash + e.massageCash,
-      massageCard: acc.massageCard + e.massageCard,
-      facialCash: acc.facialCash + e.facialCash,
-      facialCard: acc.facialCard + e.facialCard,
-      cardTip: acc.cardTip + e.cardTip,
-      cashTip: acc.cashTip + e.cashTip,
-      massageTotal: acc.massageTotal + e.massageTotal,
-      facialTotal: acc.facialTotal + e.facialTotal,
-      serviceTotal: acc.serviceTotal + e.serviceTotal,
-      grandTotal: acc.grandTotal + e.totalWithTips,
+      massageCash: acc.massageCash + e.massage_cash,
+      massageCard: acc.massageCard + e.massage_card,
+      facialCash: acc.facialCash + e.facial_cash,
+      facialCard: acc.facialCard + e.facial_card,
+      cardTip: acc.cardTip + e.card_tip,
+      cashTip: acc.cashTip + e.cash_tip,
+      massageTotal: acc.massageTotal + e.massage_total,
+      facialTotal: acc.facialTotal + e.facial_total,
+      serviceTotal: acc.serviceTotal + e.service_total,
+      grandTotal: acc.grandTotal + e.total_with_tips,
     }),
     { massageCash: 0, massageCard: 0, facialCash: 0, facialCard: 0, cardTip: 0, cashTip: 0, massageTotal: 0, facialTotal: 0, serviceTotal: 0, grandTotal: 0 }
   );
@@ -137,17 +137,17 @@ export default function TodayPage() {
                 ) : (
                   entries.map((entry) => (
                     <TableRow key={entry.id}>
-                      <TableCell>{entry.row_number || entry.rowNumber}</TableCell>
-                      <TableCell>{entry.start_time || entry.startTime || "-"}</TableCell>
+                      <TableCell>{entry.row_number}</TableCell>
+                      <TableCell>{entry.start_time || "-"}</TableCell>
                       <TableCell>{entry.room || "-"}</TableCell>
                       <TableCell className="font-mono text-xs max-w-[200px] truncate">
-                        {entry.confirmed_notation || entry.confirmedNotation || entry.raw_ocr_text || entry.rawOcrText || "-"}
+                        {entry.confirmed_notation || entry.raw_ocr_text || "-"}
                       </TableCell>
-                      <TableCell>{entry.massage_cash || entry.massageCash > 0 ? formatCurrency(entry.massage_cash ?? entry.massageCash) : "-"}</TableCell>
-                      <TableCell>{entry.massage_card || entry.massageCard > 0 ? formatCurrency(entry.massage_card ?? entry.massageCard) : "-"}</TableCell>
-                      <TableCell>{entry.card_tip || entry.cardTip > 0 ? formatCurrency(entry.card_tip ?? entry.cardTip) : "-"}</TableCell>
-                      <TableCell>{entry.facial_cash || entry.facialCash > 0 ? formatCurrency(entry.facial_cash ?? entry.facialCash) : "-"}</TableCell>
-                      <TableCell>{entry.facial_card || entry.facialCard > 0 ? formatCurrency(entry.facial_card ?? entry.facialCard) : "-"}</TableCell>
+                      <TableCell>{entry.massage_cash > 0 ? formatCurrency(entry.massage_cash) : "-"}</TableCell>
+                      <TableCell>{entry.massage_card > 0 ? formatCurrency(entry.massage_card) : "-"}</TableCell>
+                      <TableCell>{entry.card_tip > 0 ? formatCurrency(entry.card_tip) : "-"}</TableCell>
+                      <TableCell>{entry.facial_cash > 0 ? formatCurrency(entry.facial_cash) : "-"}</TableCell>
+                      <TableCell>{entry.facial_card > 0 ? formatCurrency(entry.facial_card) : "-"}</TableCell>
                       <TableCell>
                         <Badge variant={entry.status === "reviewed" ? "success" : "warning"}>
                           {getStatusLabel(entry.status)}
@@ -216,31 +216,31 @@ export default function TodayPage() {
       {selectedEntry && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setSelectedEntry(null)}>
           <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold mb-4">记录详情 #{selectedEntry.rowNumber}</h3>
+            <h3 className="text-lg font-semibold mb-4">记录详情 #{selectedEntry.row_number}</h3>
             <div className="space-y-3 text-sm">
               <div className="grid grid-cols-2 gap-4">
-                <div><span className="text-gray-500">时间：</span>{selectedEntry.startTime || "-"}</div>
+                <div><span className="text-gray-500">时间：</span>{selectedEntry.start_time || "-"}</div>
                 <div><span className="text-gray-500">Room：</span>{selectedEntry.room || "-"}</div>
               </div>
               <div>
                 <span className="text-gray-500">原始记账：</span>
-                <p className="font-mono bg-gray-50 p-2 rounded mt-1">{selectedEntry.confirmedNotation || selectedEntry.rawOcrText || "-"}</p>
+                <p className="font-mono bg-gray-50 p-2 rounded mt-1">{selectedEntry.confirmed_notation || selectedEntry.raw_ocr_text || "-"}</p>
               </div>
-              {selectedEntry.rawHandwritingImage && (
+              {selectedEntry.raw_handwriting_image && (
                 <div>
                   <span className="text-gray-500">手写原图：</span>
-                  <img src={selectedEntry.rawHandwritingImage} alt="手写" className="border rounded mt-1 max-w-full" />
+                  <img src={selectedEntry.raw_handwriting_image} alt="手写" className="border rounded mt-1 max-w-full" />
                 </div>
               )}
               <div className="grid grid-cols-2 gap-4 border-t pt-2">
-                <div>按摩现金：{formatCurrency(selectedEntry.massageCash)}</div>
-                <div>按摩刷卡：{formatCurrency(selectedEntry.massageCard)}</div>
-                <div>小费刷卡：{formatCurrency(selectedEntry.cardTip)}</div>
-                <div>美容现金：{formatCurrency(selectedEntry.facialCash)}</div>
-                <div>美容刷卡：{formatCurrency(selectedEntry.facialCard)}</div>
+                <div>按摩现金：{formatCurrency(selectedEntry.massage_cash)}</div>
+                <div>按摩刷卡：{formatCurrency(selectedEntry.massage_card)}</div>
+                <div>小费刷卡：{formatCurrency(selectedEntry.card_tip)}</div>
+                <div>美容现金：{formatCurrency(selectedEntry.facial_cash)}</div>
+                <div>美容刷卡：{formatCurrency(selectedEntry.facial_card)}</div>
               </div>
               <div className="border-t pt-2 font-bold">
-                总计：{formatCurrency(selectedEntry.totalWithTips)}
+                总计：{formatCurrency(selectedEntry.total_with_tips)}
               </div>
             </div>
             <div className="mt-4 flex justify-end">
