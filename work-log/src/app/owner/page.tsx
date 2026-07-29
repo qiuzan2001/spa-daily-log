@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/hooks/use-session";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,23 +12,12 @@ import { getTodayStr, formatCurrency } from "@/lib/utils";
 
 export default function OwnerPage() {
   const router = useRouter();
-  const { user, isLoading } = useSession();
   const [stats, setStats] = useState<any>(null);
   const [searchDate, setSearchDate] = useState(getTodayStr());
   const [searchTherapist, setSearchTherapist] = useState("");
   const [entries, setEntries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.push("/");
-      return;
-    }
-    if (user) {
-      fetchStats();
-      fetchEntries();
-    }
-  }, [user, isLoading]);
 
   async function fetchStats() {
     try {
@@ -68,7 +56,7 @@ export default function OwnerPage() {
     window.open(`/api/export?${params}`, "_blank");
   }
 
-  if (isLoading || loading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />

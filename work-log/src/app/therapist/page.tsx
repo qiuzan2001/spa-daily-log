@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/hooks/use-session";
 import { useAutoSave } from "@/hooks/use-auto-save";
 import { HandwritingCanvas, HandwritingCanvasHandle } from "@/components/canvas/handwriting-canvas";
 import { Button } from "@/components/ui/button";
@@ -28,7 +27,6 @@ const STORAGE_KEY_PREFIX = "worksheet-draft-";
 
 export default function TherapistPage() {
   const router = useRouter();
-  const { user, isLoading: sessionLoading } = useSession();
   const [rows, setRows] = useState<RowData[]>(() => {
     // Load from localStorage
     if (typeof window !== "undefined") {
@@ -74,11 +72,6 @@ export default function TherapistPage() {
   }, [rows]);
 
   // Redirect if not logged in
-  useEffect(() => {
-    if (!sessionLoading && !user) {
-      router.push("/");
-    }
-  }, [user, sessionLoading, router]);
 
   const updateRow = useCallback((index: number, field: keyof RowData, value: string) => {
     setRows((prev) => {
@@ -145,22 +138,15 @@ export default function TherapistPage() {
       localStorage.setItem(`${STORAGE_KEY_PREFIX}${getTodayStr()}`, JSON.stringify(data));
 
       // Store for review page
-      sessionStorage.setItem("review-data", JSON.stringify({ rows: data, date: getTodayStr(), therapistId: user?.id }));
+      sessionStorage.setItem("review-data", JSON.stringify({ rows: data, date: getTodayStr(), therapistId: 1 }));
       router.push("/review");
     } catch (err) {
       console.error("Save error:", err);
     } finally {
       setSaving(false);
     }
-  }, [rows, user, router]);
+  }, [rows, router]);
 
-  if (sessionLoading || !user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -174,7 +160,7 @@ export default function TherapistPage() {
             <div>
               <h1 className="text-lg font-semibold text-gray-900">Lake Spa Massage</h1>
               <p className="text-xs text-gray-500">
-                {getTodayStr()} | {user.name} |{" "}
+                {getTodayStr()} | "User" |{" "}
                 <Badge variant="outline" className="text-[10px]">草稿</Badge>
               </p>
             </div>

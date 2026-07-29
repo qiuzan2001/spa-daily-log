@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/hooks/use-session";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,19 +24,11 @@ interface ServiceCode {
 
 export default function CodesPage() {
   const router = useRouter();
-  const { user, isLoading } = useSession();
   const [codes, setCodes] = useState<ServiceCode[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingCode, setEditingCode] = useState<ServiceCode | null>(null);
   const [showForm, setShowForm] = useState(false);
 
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.push("/");
-      return;
-    }
-    if (user) fetchCodes();
-  }, [user, isLoading]);
 
   async function fetchCodes() {
     try {
@@ -88,7 +79,7 @@ export default function CodesPage() {
     }
   }
 
-  if (isLoading || loading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />

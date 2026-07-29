@@ -5,9 +5,7 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.auth import get_current_employee
 from app.database import get_db
-from app.models import Employee, ServiceEntry, WorkSheet
 from app.schemas import WorkSheetCreate, WorkSheetDetail, WorkSheetOut, WorkSheetUpdate
 
 router = APIRouter(prefix="/api/worksheets", tags=["worksheets"])
@@ -17,7 +15,6 @@ router = APIRouter(prefix="/api/worksheets", tags=["worksheets"])
 async def create_worksheet(
     body: WorkSheetCreate,
     db: AsyncSession = Depends(get_db),
-    _auth: Employee = Depends(get_current_employee),
 ) -> Any:
     ws = WorkSheet(date=body.date, employee_id=body.employee_id, status="draft")
     db.add(ws)
@@ -36,7 +33,6 @@ async def list_worksheets(
     date: str | None = None,
     employee_id: int | None = None,
     db: AsyncSession = Depends(get_db),
-    _auth: Employee = Depends(get_current_employee),
 ) -> Any:
     stmt = select(WorkSheet).options(selectinload(WorkSheet.employee), selectinload(WorkSheet.entries))
     if date:
@@ -63,7 +59,6 @@ async def list_worksheets(
 async def get_worksheet(
     worksheet_id: int,
     db: AsyncSession = Depends(get_db),
-    _auth: Employee = Depends(get_current_employee),
 ) -> Any:
     stmt = (
         select(WorkSheet)
@@ -88,7 +83,6 @@ async def update_worksheet(
     worksheet_id: int,
     body: WorkSheetUpdate,
     db: AsyncSession = Depends(get_db),
-    _auth: Employee = Depends(get_current_employee),
 ) -> Any:
     result = await db.execute(select(WorkSheet).where(WorkSheet.id == worksheet_id))
     ws = result.scalar_one_or_none()

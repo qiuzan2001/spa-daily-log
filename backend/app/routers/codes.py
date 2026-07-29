@@ -4,9 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth import get_current_employee
 from app.database import get_db
-from app.models import Employee, ServiceCode
 from app.schemas import ServiceCodeCreate, ServiceCodeOut
 
 router = APIRouter(prefix="/api/codes", tags=["codes"])
@@ -15,7 +13,6 @@ router = APIRouter(prefix="/api/codes", tags=["codes"])
 @router.get("", response_model=list[ServiceCodeOut])
 async def list_codes(
     db: AsyncSession = Depends(get_db),
-    _auth: Employee = Depends(get_current_employee),
 ) -> Any:
     result = await db.execute(select(ServiceCode).where(ServiceCode.active == True).order_by(ServiceCode.id))
     return result.scalars().all()
@@ -25,7 +22,6 @@ async def list_codes(
 async def create_code(
     body: ServiceCodeCreate,
     db: AsyncSession = Depends(get_db),
-    _auth: Employee = Depends(get_current_employee),
 ) -> Any:
     code = ServiceCode(**body.model_dump())
     db.add(code)
@@ -39,7 +35,6 @@ async def update_code(
     code_id: int,
     body: ServiceCodeCreate,
     db: AsyncSession = Depends(get_db),
-    _auth: Employee = Depends(get_current_employee),
 ) -> Any:
     result = await db.execute(select(ServiceCode).where(ServiceCode.id == code_id))
     code = result.scalar_one_or_none()

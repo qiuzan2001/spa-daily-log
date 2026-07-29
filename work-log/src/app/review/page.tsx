@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/hooks/use-session";
 import { parseServiceNotation, formatServiceNotation } from "@/lib/parser";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +22,6 @@ interface ReviewRow {
 
 export default function ReviewPage() {
   const router = useRouter();
-  const { user } = useSession();
   const [rows, setRows] = useState<ReviewRow[]>([]);
   const [currentRowIndex, setCurrentRowIndex] = useState(0);
   const [mockText, setMockText] = useState("");
@@ -56,7 +54,7 @@ export default function ReviewPage() {
 
   useEffect(() => {
     // All authenticated users can access this page
-  }, [user]);
+  }, []);
 
   const handleMockOcr = useCallback((rowIndex: number, text: string) => {
     setProcessing(true);
@@ -101,7 +99,6 @@ export default function ReviewPage() {
   }, [rows]);
 
   const handleSubmitAll = useCallback(async () => {
-    if (!user) return;
     const confirmed = JSON.parse(sessionStorage.getItem("confirmed-rows") || "[]");
     if (confirmed.length === 0) {
       alert("请先确认至少一条记录");
@@ -115,7 +112,7 @@ export default function ReviewPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           date: new Date().toISOString().split("T")[0],
-          therapistId: user.id,
+          employee_id: 1,
         }),
       });
       const wsData = await wsRes.json();
@@ -158,7 +155,7 @@ export default function ReviewPage() {
             facialCard: conf.notation.facialTotal,
             cardTip: conf.notation.cardTip,
             cashTip: conf.notation.cashTip,
-            confirmedById: user.id,
+            confirmedById: 1,
             status: "reviewed",
           }),
         });
@@ -182,7 +179,7 @@ export default function ReviewPage() {
       console.error("Submit error:", err);
       alert("提交失败，请重试");
     }
-  }, [user, rows, router]);
+  }, [rows, router]);
 
   const currentRow = rows[currentRowIndex];
 

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/hooks/use-session";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,21 +33,10 @@ interface Entry {
 
 export default function TodayPage() {
   const router = useRouter();
-  const { user, isLoading } = useSession();
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
 
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.push("/");
-      return;
-    }
-
-    if (user) {
-      fetchEntries();
-    }
-  }, [user, isLoading]);
 
   async function fetchEntries() {
     try {
@@ -85,7 +73,7 @@ export default function TodayPage() {
     { massageCash: 0, massageCard: 0, facialCash: 0, facialCard: 0, cardTip: 0, cashTip: 0, massageTotal: 0, facialTotal: 0, serviceTotal: 0, grandTotal: 0 }
   );
 
-  if (isLoading || loading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />

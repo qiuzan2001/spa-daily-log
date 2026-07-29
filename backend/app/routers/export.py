@@ -8,9 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.auth import get_current_employee
 from app.database import get_db
-from app.models import Employee, ServiceEntry, WorkSheet
 from app.lib.utils import get_today_str
 
 router = APIRouter(prefix="/api/export", tags=["export"])
@@ -21,7 +19,6 @@ async def export_csv(
     date: str | None = None,
     employee_id: int | None = None,
     db: AsyncSession = Depends(get_db),
-    _auth: Employee = Depends(get_current_employee),
 ) -> Any:
     target_date = date or get_today_str()
 

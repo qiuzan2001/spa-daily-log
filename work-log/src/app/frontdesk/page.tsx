@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/hooks/use-session";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,18 +19,10 @@ interface TherapistStatus {
 
 export default function FrontDeskPage() {
   const router = useRouter();
-  const { user, isLoading } = useSession();
   const [therapists, setTherapists] = useState<TherapistStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [date, setDate] = useState(getTodayStr());
 
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.push("/");
-      return;
-    }
-    if (user) fetchData();
-  }, [user, isLoading, date]);
 
   async function fetchData() {
     try {
@@ -53,13 +44,12 @@ export default function FrontDeskPage() {
   }
 
   async function handleLock(worksheetId: string) {
-    if (!user) return;
     if (!confirm("确定锁定该工作表？锁定后员工无法修改。")) return;
     try {
       await fetch(`/api/worksheets/${worksheetId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "locked", lockedById: user.id }),
+        body: JSON.stringify({ status: "locked" }),
       });
       fetchData();
     } catch (err) {
@@ -68,7 +58,6 @@ export default function FrontDeskPage() {
   }
 
   async function handleReject(worksheetId: string) {
-    if (!user) return;
     const reason = prompt("请输入退回原因：");
     if (!reason) return;
     try {
@@ -82,7 +71,7 @@ export default function FrontDeskPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: user.id,
+          userId: 1,
           entityType: "worksheet",
           entityId: worksheetId,
           action: "reject",
@@ -95,7 +84,7 @@ export default function FrontDeskPage() {
     }
   }
 
-  if (isLoading || loading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />

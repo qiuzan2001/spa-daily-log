@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/hooks/use-session";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,14 +19,10 @@ interface PrintData {
 
 export default function PrintPage() {
   const router = useRouter();
-  const { user, isLoading } = useSession();
   const [date, setDate] = useState(getTodayStr());
   const [printData, setPrintData] = useState<PrintData | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!isLoading && !user) router.push("/");
-  }, [user, isLoading]);
 
   async function fetchPrintData() {
     setLoading(true);
@@ -47,8 +42,8 @@ export default function PrintPage() {
   }
 
   useEffect(() => {
-    if (user) fetchPrintData();
-  }, [user, date]);
+    fetchPrintData();
+  }, [date]);
 
   function handlePrint() {
     window.print();

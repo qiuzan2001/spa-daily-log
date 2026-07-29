@@ -6,9 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.auth import get_current_employee
 from app.database import get_db
-from app.models import Employee, ServiceEntry, ServiceEntryItem
 from app.schemas import EntryCreate, EntryReview, ServiceEntryOut
 
 router = APIRouter(prefix="/api/entries", tags=["entries"])
@@ -18,7 +16,6 @@ router = APIRouter(prefix="/api/entries", tags=["entries"])
 async def create_entry(
     body: EntryCreate,
     db: AsyncSession = Depends(get_db),
-    _auth: Employee = Depends(get_current_employee),
 ) -> Any:
     entry = ServiceEntry(
         worksheet_id=body.worksheet_id,
@@ -40,7 +37,6 @@ async def create_entry(
 async def get_entry(
     entry_id: int,
     db: AsyncSession = Depends(get_db),
-    _auth: Employee = Depends(get_current_employee),
 ) -> Any:
     stmt = (
         select(ServiceEntry)
@@ -59,7 +55,6 @@ async def review_entry(
     entry_id: int,
     body: EntryReview,
     db: AsyncSession = Depends(get_db),
-    _auth: Employee = Depends(get_current_employee),
 ) -> Any:
     result = await db.execute(select(ServiceEntry).where(ServiceEntry.id == entry_id))
     entry = result.scalar_one_or_none()

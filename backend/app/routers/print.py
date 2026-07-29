@@ -6,10 +6,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.auth import get_current_employee
 from app.database import get_db
 from app.lib.utils import format_currency, get_today_str
-from app.models import Employee, ServiceEntry, WorkSheet
 from app.schemas import PrintRequest
 
 router = APIRouter(prefix="/api/print", tags=["print"])
@@ -24,7 +22,6 @@ async def print_index() -> Any:
 async def generate_print_data(
     body: PrintRequest,
     db: AsyncSession = Depends(get_db),
-    _auth: Employee = Depends(get_current_employee),
 ) -> Any:
     target_date = body.date or get_today_str()
 
