@@ -21,33 +21,49 @@ export default function OwnerPage() {
   useEffect(() => {
     fetchStats();
     fetchEntries();
-  }, []);
+  }, [searchDate]);
 
   async function fetchStats() {
     try {
-      const res = await fetch(`/api/owner/stats?date=${getTodayStr()}`);
+      const res = await fetch(`/api/owner/stats?date=${searchDate || getTodayStr()}`);
+      if (!res.ok) throw new Error(`stats ${res.status}`);
       const data = await res.json();
       setStats(data);
     } catch (err) {
       console.error("Stats error:", err);
+      setStats({
+        today_massage_income: 0,
+        today_facial_income: 0,
+        today_tips: 0,
+        today_service_count: 0,
+        today_cash: 0,
+        today_card: 0,
+      });
     }
   }
 
   async function fetchEntries() {
     try {
+      setLoading(true);
       const params = new URLSearchParams();
       if (searchDate) params.set("date", searchDate);
       if (searchTherapist) params.set("employee_id", searchTherapist);
       const res = await fetch(`/api/worksheets?${params}`);
+      if (!res.ok) throw new Error(`worksheets ${res.status}`);
       const data = await res.json();
       const worksheets = Array.isArray(data) ? data : data.worksheets || [];
       const allEntries = worksheets.flatMap((ws: any) => {
         const entries = ws.entries || [];
-        return entries.map((e: any) => ({ ...e, therapistName: ws.employee_name || ws.employee?.name || "" }));
+        return entries.map((e: any) => ({
+          ...e,
+          therapistName: ws.employee_name || ws.employee?.name || "",
+          worksheet: { date: ws.date },
+        }));
       });
-      setEntries(allEntries.sort((a: any, b: any) => a.row_number - b.row_number));
+      setEntries(allEntries.sort((a: any, b: any) => (a.row_number || 0) - (b.row_number || 0)));
     } catch (err) {
       console.error("Entries error:", err);
+      setEntries([]);
     } finally {
       setLoading(false);
     }
@@ -95,7 +111,7 @@ export default function OwnerPage() {
                 <CardTitle className="text-xs text-gray-500">今日按摩收入</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">{formatCurrency(stats.todayMassageIncome)}</p>
+                <p className="text-2xl font-bold">{formatCurrency(stats.today_massage_income ?? stats.todayMassageIncome ?? 0)}</p>
               </CardContent>
             </Card>
             <Card>
@@ -103,7 +119,7 @@ export default function OwnerPage() {
                 <CardTitle className="text-xs text-gray-500">今日美容收入</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">{formatCurrency(stats.todayFacialIncome)}</p>
+                <p className="text-2xl font-bold">{formatCurrency(stats.today_facial_income ?? stats.todayFacialIncome ?? 0)}</p>
               </CardContent>
             </Card>
             <Card>
@@ -111,7 +127,7 @@ export default function OwnerPage() {
                 <CardTitle className="text-xs text-gray-500">今日小费</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">{formatCurrency(stats.todayTips)}</p>
+                <p className="text-2xl font-bold">{formatCurrency(stats.today_tips ?? stats.todayTips ?? 0)}</p>
               </CardContent>
             </Card>
             <Card>
@@ -119,7 +135,7 @@ export default function OwnerPage() {
                 <CardTitle className="text-xs text-gray-500">今日服务单数</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">{stats.todayServiceCount}</p>
+                <p className="text-2xl font-bold">{stats.today_service_count ?? stats.todayServiceCount ?? 0}</p>
               </CardContent>
             </Card>
             <Card>
@@ -127,7 +143,7 @@ export default function OwnerPage() {
                 <CardTitle className="text-xs text-gray-500">今日现金</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">{formatCurrency(stats.todayCash)}</p>
+                <p className="text-2xl font-bold">{formatCurrency(stats.today_cash ?? stats.todayCash ?? 0)}</p>
               </CardContent>
             </Card>
             <Card>
@@ -135,7 +151,7 @@ export default function OwnerPage() {
                 <CardTitle className="text-xs text-gray-500">今日刷卡</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">{formatCurrency(stats.todayCard)}</p>
+                <p className="text-2xl font-bold">{formatCurrency(stats.today_card ?? stats.todayCard ?? 0)}</p>
               </CardContent>
             </Card>
           </div>
