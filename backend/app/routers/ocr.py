@@ -25,4 +25,4 @@ async def mock_ocr(
         text=text,
         confidence=1.0,
         items=parsed.get("items", []),
-    )
+    )from app.models import Employee

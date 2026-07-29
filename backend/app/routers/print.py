@@ -77,4 +77,4 @@ async def generate_print_data(
             },
         }
 
-    return {"therapists": therapists, "date": target_date}
+    return {"therapists": therapists, "date": target_date}from app.models import Employee, ServiceEntry, WorkSheet

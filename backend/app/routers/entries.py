@@ -111,4 +111,4 @@ async def review_entry(
 
     await db.flush()
     await db.refresh(entry)
-    return entry
+    return entryfrom app.models import Employee, ServiceEntry, ServiceEntryItem
