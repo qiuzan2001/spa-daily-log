@@ -23,6 +23,9 @@ export default function FrontDeskPage() {
   const [loading, setLoading] = useState(true);
   const [date, setDate] = useState(getTodayStr());
 
+  useEffect(() => {
+    fetchData();
+  }, [date]);
 
   async function fetchData() {
     try {

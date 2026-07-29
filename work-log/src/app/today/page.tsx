@@ -37,6 +37,9 @@ export default function TodayPage() {
   const [loading, setLoading] = useState(true);
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
 
+  useEffect(() => {
+    fetchEntries();
+  }, []);
 
   async function fetchEntries() {
     try {

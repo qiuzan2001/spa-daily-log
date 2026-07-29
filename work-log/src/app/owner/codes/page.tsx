@@ -29,6 +29,9 @@ export default function CodesPage() {
   const [editingCode, setEditingCode] = useState<ServiceCode | null>(null);
   const [showForm, setShowForm] = useState(false);
 
+  useEffect(() => {
+    fetchCodes();
+  }, []);
 
   async function fetchCodes() {
     try {

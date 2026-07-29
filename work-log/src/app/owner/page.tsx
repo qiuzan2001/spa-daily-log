@@ -18,6 +18,10 @@ export default function OwnerPage() {
   const [entries, setEntries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    fetchStats();
+    fetchEntries();
+  }, []);
 
   async function fetchStats() {
     try {

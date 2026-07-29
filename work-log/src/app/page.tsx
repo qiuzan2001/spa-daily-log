@@ -6,7 +6,7 @@ const pages = [
   {
     title: "工作台",
     desc: "记录每日服务项目、收款",
-    path: "/",
+    path: "/workbench",
     icon: "📋",
     color: "bg-blue-50 border-blue-200 hover:bg-blue-100",
     iconBg: "bg-blue-100",
