@@ -62,6 +62,18 @@ export async function apiPatch<T>(path: string, body?: unknown): Promise<T> {
   return res.json();
 }
 
+export async function apiDelete<T>(path: string): Promise<T> {
+  const res = await fetch(path, {
+    method: "DELETE",
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(typeof err.detail === 'string' ? err.detail : `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
 export async function apiLogin(pin: string): Promise<{ token: string; employee: { id: number; name: string; role: string } }> {
   const res = await fetch("/api/auth/login", {
     method: "POST",
