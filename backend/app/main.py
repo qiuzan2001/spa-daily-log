@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import auth, audit_log, codes, entries, export, ocr, owner, print, worksheets
+from app.routers import auth, audit_log, codes, entries, export, ocr, owner, print, worksheets, workbench
 
 
 @asynccontextmanager
@@ -33,6 +33,7 @@ app.include_router(print.router)
 app.include_router(export.router)
 app.include_router(ocr.router)
 app.include_router(audit_log.router)
+app.include_router(workbench.router)
 
 
 @app.get("/health")

@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from decimal import Decimal
 
-from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String, Text, JSON, Index
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String, Text, JSON, Index, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -16,6 +16,9 @@ class Employee(Base):
     role = Column(String, nullable=False, default="therapist")  # therapist, front_desk, owner
     active = Column(Boolean, nullable=False, default=True)
     spa_platform_id = Column(Integer, nullable=True, unique=True)
+    hire_date = Column(String, default="")
+    leave_date = Column(String, default="")
+    sort_order = Column(Integer, default=9999)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
@@ -25,6 +28,7 @@ class WorkSheet(Base):
     __table_args__ = (
         Index("ix_worksheets_date", "date"),
         Index("ix_worksheets_employee", "employee_id"),
+        UniqueConstraint("date", "employee_id", name="uq_work_log_worksheet_date_employee"),
     )
 
     id = Column(Integer, primary_key=True)
@@ -40,6 +44,7 @@ class WorkSheet(Base):
     employee = relationship("Employee", foreign_keys=[employee_id])
     locked_by = relationship("Employee", foreign_keys=[locked_by_id])
     entries = relationship("ServiceEntry", back_populates="worksheet", cascade="all, delete-orphan")
+    work_entries = relationship("WorkEntry", back_populates="worksheet", cascade="all, delete-orphan")
 
 
 class ServiceEntry(Base):
