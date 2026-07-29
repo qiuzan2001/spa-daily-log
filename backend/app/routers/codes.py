@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
+from app.models import ServiceCode
 from app.schemas import ServiceCodeCreate, ServiceCodeOut
 
 router = APIRouter(prefix="/api/codes", tags=["codes"])
@@ -45,4 +46,4 @@ async def update_code(
         setattr(code, field, value)
     await db.flush()
     await db.refresh(code)
-    return codefrom app.models import Employee, ServiceCode
+    return code

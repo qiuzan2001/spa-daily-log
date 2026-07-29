@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.database import get_db
+from app.models import ServiceEntry, ServiceEntryItem
 from app.schemas import EntryCreate, EntryReview, ServiceEntryOut
 
 router = APIRouter(prefix="/api/entries", tags=["entries"])
@@ -61,13 +62,6 @@ async def review_entry(
     if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
 
-    # Calculate totals
-    massage_items = [i for i in body.items if i.get("category") in ("massage",)]
-    facial_items = [i for i in body.items if i.get("category") == "facial"]
-    massage_total = body.massage_cash + body.massage_card + sum(i.get("amount", 0) for i in massage_items)
-    # The massage_base should be included in massage_cash/massage_card already
-    # But the original design has massage_base separate
-    # Let's compute: massage_total = massage_cash + massage_card
     simplified_massage_total = body.massage_cash + body.massage_card
     simplified_facial_total = body.facial_cash + body.facial_card
     service_total = simplified_massage_total + simplified_facial_total
@@ -88,14 +82,13 @@ async def review_entry(
     entry.confirmed_by_id = body.confirmed_by_id
     entry.confirmed_at = datetime.now(timezone.utc)
 
-    # Clear old items and create new ones
     old_items = await db.execute(
         select(ServiceEntryItem).where(ServiceEntryItem.entry_id == entry_id)
     )
     for item in old_items.scalars():
         await db.delete(item)
 
-    for idx, item_data in enumerate(body.items):
+    for item_data in body.items:
         item = ServiceEntryItem(
             entry_id=entry_id,
             service_code_id=item_data.get("service_code_id"),
@@ -111,4 +104,4 @@ async def review_entry(
 
     await db.flush()
     await db.refresh(entry)
-    return entryfrom app.models import Employee, ServiceEntry, ServiceEntryItem
+    return entry

@@ -1,13 +1,13 @@
-from datetime import datetime, timezone
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.database import get_db
-from app.lib.utils import format_currency, get_today_str
+from app.lib.utils import get_today_str
+from app.models import WorkSheet
 from app.schemas import PrintRequest
 
 router = APIRouter(prefix="/api/print", tags=["print"])
@@ -77,4 +77,4 @@ async def generate_print_data(
             },
         }
 
-    return {"therapists": therapists, "date": target_date}from app.models import Employee, ServiceEntry, WorkSheet
+    return {"therapists": therapists, "date": target_date}

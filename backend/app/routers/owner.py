@@ -1,12 +1,13 @@
-from datetime import datetime, timezone
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select, func
+from fastapi import APIRouter, Depends
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.database import get_db
+from app.lib.utils import get_today_str
+from app.models import WorkSheet
 from app.schemas import OwnerStats
 
 router = APIRouter(prefix="/api/owner", tags=["owner"])
@@ -17,11 +18,8 @@ async def get_owner_stats(
     date: str | None = None,
     db: AsyncSession = Depends(get_db),
 ) -> Any:
-    from app.lib.utils import get_today_str
-
     target_date = date or get_today_str()
 
-    # Get all worksheets for the date
     ws_result = await db.execute(
         select(WorkSheet).where(WorkSheet.date == target_date).options(selectinload(WorkSheet.entries))
     )
@@ -52,4 +50,4 @@ async def get_owner_stats(
         today_service_count=service_count,
         today_cash=total_cash,
         today_card=total_card,
-    )from app.models import Employee, ServiceEntry, WorkSheet
+    )

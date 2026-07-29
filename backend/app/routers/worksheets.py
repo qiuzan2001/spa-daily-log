@@ -1,11 +1,12 @@
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.database import get_db
+from app.models import ServiceEntry, WorkSheet
 from app.schemas import WorkSheetCreate, WorkSheetDetail, WorkSheetOut, WorkSheetUpdate
 
 router = APIRouter(prefix="/api/worksheets", tags=["worksheets"])
@@ -22,7 +23,7 @@ async def create_worksheet(
     await db.refresh(ws)
     return WorkSheetOut(
         id=ws.id, date=ws.date, employee_id=ws.employee_id,
-        employee_name=ws.employee.name if ws.employee else "",
+        employee_name="",
         status=ws.status, created_at=ws.created_at, updated_at=ws.updated_at,
         entry_count=0,
     )
@@ -108,4 +109,4 @@ async def update_worksheet(
         status=ws.status, submitted_at=ws.submitted_at, locked_at=ws.locked_at,
         locked_by_id=ws.locked_by_id, entry_count=0,
         created_at=ws.created_at, updated_at=ws.updated_at,
-    )from app.models import Employee, ServiceEntry, WorkSheet
+    )
