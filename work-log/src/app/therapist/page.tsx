@@ -75,7 +75,7 @@ export default function TherapistPage() {
 
   // Redirect if not logged in
   useEffect(() => {
-    if (!sessionLoading && (!user || user.role !== "therapist")) {
+    if (!sessionLoading && !user) {
       router.push("/");
     }
   }, [user, sessionLoading, router]);

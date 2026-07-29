@@ -40,7 +40,7 @@ export default function TodayPage() {
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
 
   useEffect(() => {
-    if (!isLoading && (!user || (user.role !== "therapist" && user.role !== "front_desk" && user.role !== "owner"))) {
+    if (!isLoading && !user) {
       router.push("/");
       return;
     }
@@ -53,7 +53,7 @@ export default function TodayPage() {
   async function fetchEntries() {
     try {
       const today = getTodayStr();
-      const params = user?.role === "therapist" ? `?date=${today}&employee_id=${user.id}` : `?date=${today}`;
+      const params = `?date=${today}`;
       const res = await fetch(`/api/worksheets${params}`);
       const data = await res.json();
       const worksheets = Array.isArray(data) ? data : data.worksheets || [];

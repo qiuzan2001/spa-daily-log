@@ -7,7 +7,7 @@ from pydantic import BaseModel
 # ── Auth ──
 
 class LoginRequest(BaseModel):
-    name: str
+    pin: str
 
 
 class LoginResponse(BaseModel):

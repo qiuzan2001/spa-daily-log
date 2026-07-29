@@ -21,7 +21,7 @@ export default function OwnerPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isLoading && (!user || user.role !== "owner")) {
+    if (!isLoading && !user) {
       router.push("/");
       return;
     }
@@ -64,7 +64,7 @@ export default function OwnerPage() {
   async function handleExport() {
     const params = new URLSearchParams();
     if (searchDate) params.set("date", searchDate);
-    if (searchTherapist) params.set("therapistId", searchTherapist);
+    if (searchTherapist) params.set("employee_id", searchTherapist);
     window.open(`/api/export?${params}`, "_blank");
   }
 

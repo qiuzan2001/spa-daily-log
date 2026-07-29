@@ -1,265 +1,114 @@
 "use client";
 
-import React from "react";
-import { useWorkLog } from "@/hooks/useWorkLog";
-import DailyLogTable from "@/components/DailyLogTable";
-import CurrentEntry from "@/components/CurrentEntry";
-import ServiceInput from "@/components/ServiceInput";
-import PaymentSection from "@/components/PaymentSection";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/hooks/use-session";
 
-export default function Home() {
-  const {
-    selectedTherapist,
-    selectedDate,
-    draft,
-    editingId,
-    filteredEntries,
-    totals,
-    therapists,
-    autoSaveStatus,
-    canUndo,
-    serviceTotal,
-    totalDuration,
-    remainingBalance,
-    totalCollected,
-    orderStatus,
-    setSelectedTherapist,
-    setSelectedDate,
-    updateDraft,
-    newEntry,
-    selectEntry,
-    completeEntry,
-    deleteEntry,
-    cancelEditing,
-    undo,
-    selectService,
-    selectMassageService,
-    selectAddon,
-    addCustomService,
-    removeItem,
-    startEditItem,
-    cancelEdit,
-    openPayment,
-    closePayment,
-    addPaymentEntry,
-    removePaymentEntry,
-    markNoTip,
-    draft: {
-      selectedMode,
-      editingItemId,
-      editingItemShortName,
-      selectedMassageCategory,
-      selectedMassageService,
-      paymentEntries,
-      showPayment,
-      tipResolved,
-      pendingType,
-      pendingMethod,
-      pendingAmount,
-      pendingCardTime,
-      pendingGiftCardNumber,
-      pendingGiftCardImage,
-    },
-  } = useWorkLog();
+export default function LoginPage() {
+  const [pin, setPin] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { login } = useSession();
 
-  const handleComplete = () => {
-    const error = completeEntry();
-    if (error) {
-      alert(error);
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (pin.length !== 4) {
+      setError("请输入4位数字密码");
+      return;
     }
-  };
+    setLoading(true);
+    setError("");
 
-  const handleDelete = () => {
-    if (confirm("确定删除这条记录？")) {
-      deleteEntry();
+    try {
+      await login(pin);
+      router.push("/frontdesk");
+    } catch (err: any) {
+      setError(err.message || "登录失败，请重试");
+    } finally {
+      setLoading(false);
     }
-  };
+  }
+
+  function handleDigit(d: string) {
+    if (pin.length < 4) {
+      setPin(pin + d);
+      setError("");
+    }
+  }
+
+  function handleDelete() {
+    setPin(pin.slice(0, -1));
+    setError("");
+  }
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      {/* Header */}
-      <header className="border-b border-zinc-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
-          <h1 className="text-lg font-semibold text-zinc-800">NextBar</h1>
-          <div className="flex items-center gap-3">
-            <select
-              value={selectedTherapist}
-              onChange={(e) => setSelectedTherapist(e.target.value)}
-              className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-700
-                         focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
-            >
-              {therapists.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-700
-                         focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
-            />
+    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 p-4">
+      <div className="w-full max-w-sm rounded-xl bg-white p-8 shadow-sm border border-zinc-200">
+        <div className="mb-6 text-center">
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
+            <svg className="h-7 w-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
           </div>
+          <h1 className="text-xl font-semibold text-zinc-800">Lake Spa</h1>
+          <p className="mt-1 text-sm text-zinc-500">工作日志系统</p>
         </div>
-      </header>
 
-      {/* Main content */}
-      <main className="mx-auto flex max-w-7xl gap-4 px-6 py-4">
-        {/* LEFT COLUMN */}
-        <div className="flex-1 min-w-0 space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-zinc-500">
-              {filteredEntries.length} 条记录
-            </h2>
+        <form id="login-form" onSubmit={handleSubmit} className="space-y-4">
+          <div className="text-center">
+            <div className="flex justify-center gap-3 mb-4">
+              {[0, 1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className={`h-4 w-4 rounded-full border-2 transition-all ${
+                    pin.length > i
+                      ? "border-blue-500 bg-blue-500"
+                      : "border-zinc-300 bg-white"
+                  }`}
+                />
+              ))}
+            </div>
+            {error && <p className="text-sm text-red-500">{error}</p>}
+          </div>
+
+          <div className="grid grid-cols-3 gap-3 max-w-[240px] mx-auto">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => handleDigit(String(d))}
+                className="h-14 w-full rounded-xl bg-zinc-100 text-lg font-semibold text-zinc-800 hover:bg-zinc-200 active:bg-zinc-300 transition-colors"
+              >
+                {d}
+              </button>
+            ))}
+            <div />
             <button
               type="button"
-              onClick={newEntry}
-              disabled={editingId !== null}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white
-                         hover:bg-blue-700 active:bg-blue-800 disabled:opacity-40 disabled:cursor-not-allowed
-                         transition-colors"
+              onClick={() => handleDigit("0")}
+              className="h-14 w-full rounded-xl bg-zinc-100 text-lg font-semibold text-zinc-800 hover:bg-zinc-200 active:bg-zinc-300 transition-colors"
             >
-              新增一工
+              0
+            </button>
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="h-14 w-full rounded-xl bg-zinc-100 text-sm text-zinc-500 hover:bg-zinc-200 active:bg-zinc-300 transition-colors"
+            >
+              删除
             </button>
           </div>
-          <DailyLogTable
-            entries={filteredEntries}
-            editingId={editingId}
-            onSelectEntry={selectEntry}
-            totals={totals}
-          />
-        </div>
 
-        {/* RIGHT COLUMN */}
-        <div className="w-[420px] flex-shrink-0 space-y-4">
-          {/* Current Entry */}
-          <CurrentEntry
-            draft={draft}
-            serviceTotal={serviceTotal}
-            totalDuration={totalDuration}
-            remainingBalance={remainingBalance}
-            paymentStatus={orderStatus}
-            autoSaveStatus={autoSaveStatus}
-            editingId={editingId}
-            onRemoveItem={removeItem}
-            onStartEditItem={startEditItem}
-            onUndo={undo}
-            canUndo={canUndo}
-            onStartTimeChange={(val) => updateDraft({ startTime: val })}
-            onEarlyFiveToggle={(val) => updateDraft({ finishEarlyFiveMinutes: val })}
-          />
-
-          {/* Service Input */}
-          <div className="rounded-lg border border-zinc-200 bg-white p-4">
-            <h3 className="text-sm font-medium text-zinc-700 mb-3">服务</h3>
-            <ServiceInput
-              selectedMode={selectedMode}
-              onModeChange={(mode) => updateDraft({ selectedMode: mode })}
-              editingItemId={editingItemId}
-              editingItemShortName={editingItemShortName}
-              selectedMassageCategory={selectedMassageCategory}
-              selectedMassageService={selectedMassageService}
-              onSelectService={selectService}
-              onSelectMassageService={selectMassageService}
-              onSelectAddon={selectAddon}
-              onCustomService={addCustomService}
-              onCancelEdit={cancelEdit}
-              onSetMassageCategory={(name) => updateDraft({ selectedMassageCategory: name })}
-              onSetMassageService={(id) => updateDraft({ selectedMassageService: id })}
-            />
-          </div>
-
-          {/* Payment */}
-          <PaymentSection
-            showPayment={showPayment}
-            onOpenPayment={openPayment}
-            onClosePayment={closePayment}
-            pendingType={pendingType}
-            pendingMethod={pendingMethod}
-            pendingAmount={pendingAmount}
-            pendingCardTime={pendingCardTime}
-            pendingGiftCardNumber={pendingGiftCardNumber}
-            pendingGiftCardImage={pendingGiftCardImage}
-            onPendingGiftCardNumberChange={(val) => updateDraft({ pendingGiftCardNumber: val })}
-            onPendingGiftCardImageChange={(val) => updateDraft({ pendingGiftCardImage: val })}
-            onPendingTypeChange={(val) => updateDraft({ pendingType: val })}
-            onPendingMethodChange={(val) => updateDraft({ pendingMethod: val })}
-            onPendingAmountChange={(val) => updateDraft({ pendingAmount: val })}
-            onPendingCardTimeChange={(val) => updateDraft({ pendingCardTime: val })}
-            onAddEntry={addPaymentEntry}
-            onMarkNoTip={markNoTip}
-            tipResolved={tipResolved}
-            paymentEntries={paymentEntries}
-            onRemoveEntry={removePaymentEntry}
-            serviceTotal={serviceTotal}
-            remainingBalance={remainingBalance}
-            totalCollected={totalCollected}
-            paymentStatus={orderStatus}
-          />
-
-          {/* Action buttons */}
-          <div className="flex gap-2">
-            {editingId && (
-              <>
-                <button
-                  type="button"
-                  onClick={cancelEditing}
-                  className="flex-1 rounded-lg border border-zinc-200 px-4 py-2.5 text-sm font-medium text-zinc-600
-                             hover:bg-zinc-50 active:bg-zinc-100 transition-colors"
-                >
-                  取消
-                </button>
-                <button
-                  type="button"
-                  onClick={handleComplete}
-                  className="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white
-                             hover:bg-blue-700 active:bg-blue-800 transition-colors"
-                >
-                  完成修改
-                </button>
-              </>
-            )}
-            {!editingId && (
-              <button
-                type="button"
-                onClick={handleComplete}
-                className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white
-                           hover:bg-blue-700 active:bg-blue-800 transition-colors"
-              >
-                完成本工
-              </button>
-            )}
-          </div>
-
-          {/* Delete — in overflow menu style */}
-          {editingId && (
-            <div className="relative flex justify-center">
-              <div className="group relative">
-                <button
-                  type="button"
-                  className="text-xs text-zinc-400 hover:text-zinc-600 flex items-center gap-1"
-                >
-                  <span>···</span>
-                  <span className="text-xs">更多</span>
-                </button>
-                <div className="absolute right-0 top-full mt-1 hidden group-hover:block z-10">
-                  <div className="rounded-lg border border-zinc-200 bg-white shadow-lg py-1">
-                    <button
-                      type="button"
-                      onClick={handleDelete}
-                      className="block w-full px-4 py-1.5 text-xs text-red-600 hover:bg-red-50 whitespace-nowrap"
-                    >
-                      删除整条记录
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-4 w-full rounded-xl bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 transition-colors"
+          >
+            {loading ? "登录中..." : "登录"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

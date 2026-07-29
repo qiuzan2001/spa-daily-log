@@ -26,7 +26,7 @@ export default function FrontDeskPage() {
   const [date, setDate] = useState(getTodayStr());
 
   useEffect(() => {
-    if (!isLoading && (!user || user.role === "therapist")) {
+    if (!isLoading && !user) {
       router.push("/");
       return;
     }

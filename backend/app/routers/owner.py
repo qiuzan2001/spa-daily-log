@@ -6,7 +6,7 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.auth import get_current_employee, require_role
+from app.auth import get_current_employee
 from app.database import get_db
 from app.models import Employee, ServiceEntry, WorkSheet
 from app.schemas import OwnerStats
@@ -18,7 +18,7 @@ router = APIRouter(prefix="/api/owner", tags=["owner"])
 async def get_owner_stats(
     date: str | None = None,
     db: AsyncSession = Depends(get_db),
-    _auth: Employee = Depends(require_role("owner")),
+    _auth: Employee = Depends(get_current_employee),
 ) -> Any:
     from app.lib.utils import get_today_str
 

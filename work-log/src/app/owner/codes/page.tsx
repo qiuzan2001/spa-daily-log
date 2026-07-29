@@ -32,7 +32,7 @@ export default function CodesPage() {
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && (!user || user.role !== "owner")) {
+    if (!isLoading && !user) {
       router.push("/");
       return;
     }

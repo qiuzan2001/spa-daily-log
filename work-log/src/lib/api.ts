@@ -62,11 +62,11 @@ export async function apiPatch<T>(path: string, body?: unknown): Promise<T> {
   return res.json();
 }
 
-export async function apiLogin(name: string): Promise<{ token: string; employee: { id: number; name: string; role: string } }> {
+export async function apiLogin(pin: string): Promise<{ token: string; employee: { id: number; name: string; role: string } }> {
   const res = await fetch("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name }),
+    body: JSON.stringify({ pin }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));

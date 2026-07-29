@@ -21,7 +21,7 @@ export function useSession() {
       const stored = localStorage.getItem(SESSION_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (parsed.id && parsed.name) {
+        if (parsed.id && parsed.token) {
           queueMicrotask(() => setUser(parsed));
         }
       }
@@ -31,8 +31,8 @@ export function useSession() {
     setIsLoading(false);
   }, []);
 
-  const login = useCallback(async (name: string): Promise<SessionUser> => {
-    const result = await apiLogin(name);
+  const login = useCallback(async (pin: string): Promise<SessionUser> => {
+    const result = await apiLogin(pin);
     const sessionUser: SessionUser = { ...result.employee, token: result.token };
     localStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser));
     setUser(sessionUser);

@@ -55,9 +55,7 @@ export default function ReviewPage() {
   }, [router]);
 
   useEffect(() => {
-    if (!user || user.role === "therapist") {
-      // Therapists can access this page
-    }
+    // All authenticated users can access this page
   }, [user]);
 
   const handleMockOcr = useCallback((rowIndex: number, text: string) => {
