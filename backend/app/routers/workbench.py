@@ -42,6 +42,7 @@ async def list_workbench_employees(db: AsyncSession = Depends(get_db)) -> Any:
 @router.post("/employees/sync", response_model=WorkbenchEmployeeSyncResponse)
 async def sync_workbench_employees(db: AsyncSession = Depends(get_db)) -> Any:
     employees = await sync_employees(db)
+    await db.commit()
     return {"employees": [employee_dto(employee) for employee in employees if employee.spa_platform_id is not None], "synced_count": len(employees)}
 
 
