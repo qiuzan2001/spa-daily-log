@@ -1,13 +1,38 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useWorkLog } from "@/hooks/useWorkLog";
 import DailyLogTable from "@/components/DailyLogTable";
 import CurrentEntry from "@/components/CurrentEntry";
 import ServiceInput from "@/components/ServiceInput";
 import PaymentSection from "@/components/PaymentSection";
+import { fetchWorkbenchEmployees } from "@/lib/workbench-api";
 
 export default function Home() {
+  const [employees, setEmployees] = useState<{ id: number; name: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchWorkbenchEmployees()
+      .then((list) => {
+        setEmployees(list.map((e) => ({ id: e.spa_platform_id, name: e.name })));
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-50">
+        <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  return <WorkbenchInner employees={employees} />;
+}
+
+function WorkbenchInner({ employees }: { employees: { id: number; name: string }[] }) {
   const {
     selectedTherapist,
     selectedDate,
@@ -15,7 +40,6 @@ export default function Home() {
     editingId,
     filteredEntries,
     totals,
-    therapists,
     autoSaveStatus,
     canUndo,
     serviceTotal,
@@ -60,35 +84,30 @@ export default function Home() {
       pendingGiftCardNumber,
       pendingGiftCardImage,
     },
-  } = useWorkLog();
+  } = useWorkLog(employees);
 
   const handleComplete = () => {
     const error = completeEntry();
-    if (error) {
-      alert(error);
-    }
+    if (error) alert(error);
   };
 
   const handleDelete = () => {
-    if (confirm("确定删除这条记录？")) {
-      deleteEntry();
-    }
+    if (confirm("确定删除这条记录？")) deleteEntry();
   };
 
   return (
     <div className="min-h-screen bg-zinc-50">
-      {/* Header */}
       <header className="border-b border-zinc-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
           <h1 className="text-lg font-semibold text-zinc-800">NextBar</h1>
           <div className="flex items-center gap-3">
             <select
               value={selectedTherapist}
-              onChange={(e) => setSelectedTherapist(e.target.value)}
+              onChange={(e) => setSelectedTherapist(Number(e.target.value))}
               className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-700
                          focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
             >
-              {therapists.map((t) => (
+              {employees.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.name}
                 </option>
@@ -105,9 +124,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main content */}
       <main className="mx-auto flex max-w-7xl gap-4 px-6 py-4">
-        {/* LEFT COLUMN */}
         <div className="flex-1 min-w-0 space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-medium text-zinc-500">
@@ -118,8 +135,7 @@ export default function Home() {
               onClick={newEntry}
               disabled={editingId !== null}
               className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white
-                         hover:bg-blue-700 active:bg-blue-800 disabled:opacity-40 disabled:cursor-not-allowed
-                         transition-colors"
+                         hover:bg-blue-700 active:bg-blue-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               新增一工
             </button>
@@ -132,9 +148,7 @@ export default function Home() {
           />
         </div>
 
-        {/* RIGHT COLUMN */}
         <div className="w-[420px] flex-shrink-0 space-y-4">
-          {/* Current Entry */}
           <CurrentEntry
             draft={draft}
             serviceTotal={serviceTotal}
@@ -151,7 +165,6 @@ export default function Home() {
             onEarlyFiveToggle={(val) => updateDraft({ finishEarlyFiveMinutes: val })}
           />
 
-          {/* Service Input */}
           <div className="rounded-lg border border-zinc-200 bg-white p-4">
             <h3 className="text-sm font-medium text-zinc-700 mb-3">服务</h3>
             <ServiceInput
@@ -171,7 +184,6 @@ export default function Home() {
             />
           </div>
 
-          {/* Payment */}
           <PaymentSection
             showPayment={showPayment}
             onOpenPayment={openPayment}
@@ -199,7 +211,6 @@ export default function Home() {
             paymentStatus={orderStatus}
           />
 
-          {/* Action buttons */}
           <div className="flex gap-2">
             {editingId && (
               <>
@@ -233,7 +244,6 @@ export default function Home() {
             )}
           </div>
 
-          {/* Delete — in overflow menu style */}
           {editingId && (
             <div className="relative flex justify-center">
               <div className="group relative">

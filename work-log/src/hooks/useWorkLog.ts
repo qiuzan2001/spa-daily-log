@@ -10,7 +10,6 @@ import {
   PaymentMethod,
   ServiceMode,
   OrderStatus,
-  THERAPISTS,
 } from "@/types";
 import {
   addMinutes,
@@ -179,8 +178,8 @@ function calcOrderStatus(
 // ---------------------------------------------------------------------------
 // Hook
 // ---------------------------------------------------------------------------
-export function useWorkLog() {
-  const [selectedTherapist, setSelectedTherapist] = useState<string>("linda");
+export function useWorkLog(therapists: { id: number; name: string }[]) {
+  const [selectedTherapist, setSelectedTherapist] = useState<number>(therapists[0]?.id || 0);
   const [selectedDate, setSelectedDate] = useState<string>(getTodayDateString());
   const [entries, setEntries] = useState<WorkEntry[]>([]);
   const [draft, setDraft] = useState<DraftState>(createDefaultDraft);
@@ -500,7 +499,7 @@ export function useWorkLog() {
 
       const entry: WorkEntry = {
         id: editId || generateId(),
-        therapistId: selectedTherapist,
+        therapistId: String(selectedTherapist),
         date: selectedDate,
         startTime: d.startTime,
         durationMinutes: d.durationMinutes,
@@ -605,7 +604,7 @@ export function useWorkLog() {
   // ---- computed ----------------------------------------------------------
 
   const filteredEntries = useMemo(
-    () => entries.filter((e) => e.therapistId === selectedTherapist && e.date === selectedDate),
+    () => entries.filter((e) => e.therapistId === String(selectedTherapist) && e.date === selectedDate),
     [entries, selectedTherapist, selectedDate]
   );
 
@@ -651,8 +650,6 @@ export function useWorkLog() {
     pushUndo("标记无小费");
     updateDraft({ tipResolved: true });
   }, [pushUndo, updateDraft]);
-
-  const therapists = THERAPISTS;
 
   // ---- return ------------------------------------------------------------
 
